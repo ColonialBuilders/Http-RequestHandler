@@ -36,13 +36,8 @@ public static void main(String[] s) {
     runServer();
 }
     private static void WriteConfig() {
-        BufferedWriter writer = null;
         try {
-            writer = new BufferedWriter(new FileWriter("config.properties"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("config.properties"));
             writer.write(
                     "#Server properties\n" +
                     "#ResponseModes are NONE, CUSTOM and SMART.\n" +
@@ -53,10 +48,6 @@ public static void main(String[] s) {
                     "Response=TestResponse\n" +
                     "Port=8001"
             );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -84,7 +75,10 @@ public static void main(String[] s) {
     System.out.println("Server started on port " + Port);
 }
     private static void LoadConfigFile() throws IOException {
-        Properties prop = readProperties();
+        FileInputStream fis = new FileInputStream("config.properties");
+        Properties prop = new Properties();
+        prop.load(fis);
+        fis.close();
         try {
             ResponseType = ResponseMode.valueOf(prop.getProperty("ResponseMode").toUpperCase());
         } catch (java.lang.IllegalArgumentException e) {
@@ -95,12 +89,5 @@ public static void main(String[] s) {
         Response = prop.getProperty("Response");
         Context = prop.getProperty("Context");
         Port = Short.parseShort(prop.getProperty("Port"));
-    }
-    private static Properties readProperties() throws IOException {
-        FileInputStream fis = new FileInputStream("config.properties");
-        Properties prop = new Properties();
-        prop.load(fis);
-        fis.close();
-        return prop;
     }
 }
