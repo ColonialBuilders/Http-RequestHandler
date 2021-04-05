@@ -3,6 +3,7 @@ package builders.colonial.http.webrequesthandler;
 import builders.colonial.http.webrequesthandler.http.handler.HttpHandler;
 import builders.colonial.http.webrequesthandler.module.Module;
 import builders.colonial.http.webrequesthandler.module.modules.LoggerModule;
+import builders.colonial.http.webrequesthandler.plugin.PluginSetup;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.BufferedWriter;
@@ -20,8 +21,10 @@ public class Main {
     public static String Response;
     public static String Context;
     public static short Port;
-    private static final ArrayList<Module> Modules = new ArrayList<Module>();
-public static void main(String[] s) {
+    public static final ArrayList<Module> Modules = new ArrayList<Module>();
+    private static boolean EnablePlugins;
+
+    public static void main(String[] s) {
     try {
         LoadConfigFile();
     } catch (IOException e) {
@@ -33,6 +36,9 @@ public static void main(String[] s) {
         }
     }
     LoadModules();
+    if(EnablePlugins) {
+        PluginSetup.LoadPlugins();
+    }
     runServer();
 }
     private static void WriteConfig() {
@@ -46,7 +52,8 @@ public static void main(String[] s) {
                     "Context=req\n" +
                     "ResponseMode=custom\n" +
                     "Response=TestResponse\n" +
-                    "Port=8001"
+                    "Port=8001\n" +
+                    "EnablePlugins=true"
             );
             writer.close();
         } catch (IOException e) {
@@ -89,5 +96,6 @@ public static void main(String[] s) {
         Response = prop.getProperty("Response");
         Context = prop.getProperty("Context");
         Port = Short.parseShort(prop.getProperty("Port"));
+        EnablePlugins = Boolean.parseBoolean(prop.getProperty("EnablePlugins"));
     }
 }
