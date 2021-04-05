@@ -12,3 +12,9 @@ This feature is not done yet.
 If the ResponseMode is set to Custom it will respond with what this is set to.
 ## Port
 This sets the port.
+
+
+
+#Plugins
+
+Code for a plugin https://pastebin.com/XLWLU8MC
