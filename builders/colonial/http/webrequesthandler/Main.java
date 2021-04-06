@@ -4,12 +4,12 @@ import builders.colonial.http.webrequesthandler.http.handler.HttpHandler;
 import builders.colonial.http.webrequesthandler.module.Module;
 import builders.colonial.http.webrequesthandler.module.modules.LoggerModule;
 import builders.colonial.http.webrequesthandler.plugin.PluginSetup;
+import builders.colonial.http.webserver.Webserver;
+import builders.colonial.http.webserver.handler.WebServerHandler;
+import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -23,6 +23,8 @@ public class Main {
     public static short Port;
     public static final ArrayList<Module> Modules = new ArrayList<Module>();
     private static boolean EnablePlugins;
+    private static boolean EnableHttpRequestHandler;
+    private static boolean EnableWebServer;
 
     public static void main(String[] s) {
     try {
@@ -44,16 +46,19 @@ public class Main {
     private static void WriteConfig() {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("config.properties"));
-            writer.write(
-                    "#Server properties\n" +
+            writer.write("#Server properties\n" +
                     "#ResponseModes are NONE, CUSTOM and SMART.\n" +
                     "#SMART is not done yet.\n" +
                     "#Response Only works if ResponseMode is CUSTOM.\n" +
+                    "#Http-RequestHandler\n" +
+                    "EnableHttpRequestHandler=true\n" +
                     "Context=req\n" +
                     "ResponseMode=custom\n" +
                     "Response=TestResponse\n" +
                     "Port=8001\n" +
-                    "EnablePlugins=true"
+                    "EnablePlugins=true\n" +
+                    "#Webserver\n" +
+                    "EnableWebServer=true"
             );
             writer.close();
         } catch (IOException e) {
@@ -76,7 +81,13 @@ public class Main {
         e.printStackTrace();
     }
     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
-    server.createContext("/" + Context, new HttpHandler());
+    if(EnableHttpRequestHandler) {
+        server.createContext("/" + Context, new HttpHandler());
+    }
+    if(EnableWebServer) {
+        Webserver.StartWebserver(server);
+        //server.createContext("/", new WebServerHandler());
+    }
     server.setExecutor(threadPoolExecutor);
     server.start();
     System.out.println("Server started on port " + Port);
@@ -97,5 +108,7 @@ public class Main {
         Context = prop.getProperty("Context");
         Port = Short.parseShort(prop.getProperty("Port"));
         EnablePlugins = Boolean.parseBoolean(prop.getProperty("EnablePlugins"));
+        EnableHttpRequestHandler = Boolean.parseBoolean(prop.getProperty("EnableHttpRequestHandler"));
+        EnableWebServer = Boolean.parseBoolean(prop.getProperty("EnableWebServer"));
     }
 }
